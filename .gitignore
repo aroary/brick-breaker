@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+# Editors
+.vs/
+.vscode/
+
+# Builds
+x64/
+Debug/
+Release/
