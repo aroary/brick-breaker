@@ -133,14 +133,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			FillRect(mdc, &cRect, CreateSolidBrush(RGB(230, 230, 230)));
 
 			// Draw the bricks.
+			for (Brick brick: game.bricks)
+			{
+				USI x = ((width - 100) / 8) * brick.x;
+				USI y = (100 / 3 ) * brick.y;
+				RECT bRect = { x + 50, y + 50, x + 50 + (width - 100) / 8, y + 50 + (100 / 3) };
+				
+				HPEN pen = (HPEN)SelectObject(mdc, CreatePen(PS_SOLID, 1, RGB(255, 255, 255)));
+				HBRUSH brush = (HBRUSH)SelectObject(mdc, CreateSolidBrush(RGB(180 - brick.strength * 20, 100, 100)));
+				
+				RoundRect(mdc, bRect.left, bRect.top, bRect.right, bRect.bottom, 10, 10);
+
+				DeleteObject(brush);
+				DeleteObject(pen);
+			}
+			
 
 			// Draw the paddle.
-
-
-			RECT paddle = {game.paddle.position - game.paddle.width / 2, height - game.paddle.height - 10, game.paddle.position + game.paddle.width / 2, height - 10};
+			RECT paddle = { game.paddle.position - game.paddle.width / 2, height - game.paddle.height - 10, game.paddle.position + game.paddle.width / 2, height - 10 };
 			FillRect(mdc, &paddle, CreateSolidBrush(RGB(100, 100, 150)));
 
-			// Draw the ball.
 			SHORT leftKeyState = GetAsyncKeyState(VK_LEFT);
 			SHORT rightKeyState = GetAsyncKeyState(VK_RIGHT);
 			SHORT aKeyState = GetAsyncKeyState(0x41);
@@ -165,6 +177,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (game.paddle.position - game.paddle.width / 2 < 0)
 				game.paddle.position = game.paddle.width / 2;
 
+			// Draw the ball.
+			if (game.balls.size() > 0)
+			{
+				for (Ball ball : game.balls)
+				{
+					HPEN pen = (HPEN)SelectObject(mdc, CreatePen(PS_SOLID, 1, RGB(0, 0, 0)));
+					HBRUSH brush = (HBRUSH)SelectObject(mdc, CreateSolidBrush(RGB(0, 0, 0)));
+
+					Ellipse(mdc, ball.x - ball.radius, ball.y - ball.radius, ball.x + ball.radius, ball.y + ball.radius);
+					
+					DeleteObject(pen);
+					DeleteObject(brush);
+				}
+			}
+			else if (game.lives)
+			{
+				HPEN pen = (HPEN)SelectObject(mdc, CreatePen(PS_SOLID, 1, RGB(0, 0, 0)));
+				HBRUSH brush = (HBRUSH)SelectObject(mdc, CreateSolidBrush(RGB(0, 0, 0)));
+
+				Ellipse(mdc, game.paddle.position - BALL_RADIUS, height - game.paddle.height - BALL_RADIUS - 20, game.paddle.position + BALL_RADIUS, height - game.paddle.height + BALL_RADIUS - 20);
+				
+				DeleteObject(pen);
+				DeleteObject(brush);
+			}
+			
+			//
 			BitBlt(hdc, 0, 0, width, height, mdc, 0, 0, SRCCOPY);
 
 			// Clean up
