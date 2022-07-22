@@ -174,9 +174,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					ball.y += ball.speed * sin(ball.angle * M_PI / 180);
 
 					// Handle bounce off walls.
-					if (ball.x > width || ball.x < 0)
+					if (ball.x >= width || ball.x <= 0)
 						ball.angle = 180 - ball.angle;
-					if (ball.y > height || ball.y < 0)
+					if (ball.y >= height || ball.y <= 0)
 						ball.angle = 360 - ball.angle;
 
 					pen = (HPEN)SelectObject(mdc, CreatePen(PS_SOLID, 1, RGB(0, 0, 0)));
@@ -210,7 +210,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					// Handle starting game
 					SHORT spaceKeyState = GetAsyncKeyState(VK_SPACE);
 					if (spaceKeyState & 0x8000)
-						game.balls.push_back(Ball(atan2((height - game.paddle.height - 60) - (height - game.paddle.height - 20), (game.paddle.position + game.paddle.angle) - (game.paddle.position)), game.paddle.position, height - game.paddle.height - 20));
+						game.balls.push_back(Ball(atan2(game.paddle.angle, 45) * 180 / M_PI - 90, game.paddle.position, height - game.paddle.height - 20));
 					else
 					{
 						Ellipse(mdc, game.paddle.position - BALL_RADIUS, height - game.paddle.height - BALL_RADIUS - 20, game.paddle.position + BALL_RADIUS, height - game.paddle.height + BALL_RADIUS - 20);
