@@ -129,6 +129,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			HBITMAP bmp = CreateCompatibleBitmap(hdc, width, height);
 			HBITMAP orbmp = (HBITMAP)SelectObject(mdc, bmp);
 
+			HPEN pen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
+			HBRUSH brush = CreateSolidBrush(RGB(255, 255, 255));
+
 			//
 			FillRect(mdc, &cRect, CreateSolidBrush(RGB(230, 230, 230)));
 
@@ -139,13 +142,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				USI y = (100 / 3 ) * brick.y;
 				RECT bRect = { x + 50, y + 50, x + 50 + (width - 100) / 8, y + 50 + (100 / 3) };
 				
-				HPEN pen = (HPEN)SelectObject(mdc, CreatePen(PS_SOLID, 1, RGB(255, 255, 255)));
-				HBRUSH brush = (HBRUSH)SelectObject(mdc, CreateSolidBrush(RGB(180 - brick.strength * 20, 100, 100)));
+				pen = (HPEN)SelectObject(mdc, CreatePen(PS_SOLID, 1, RGB(255, 255, 255)));
+				brush = (HBRUSH)SelectObject(mdc, CreateSolidBrush(RGB(180 - brick.strength * 20, 100, 100)));
 				
 				RoundRect(mdc, bRect.left, bRect.top, bRect.right, bRect.bottom, 10, 10);
-
-				DeleteObject(brush);
-				DeleteObject(pen);
 			}
 			
 
@@ -157,20 +157,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			SHORT rightKeyState = GetAsyncKeyState(VK_RIGHT);
 			SHORT aKeyState = GetAsyncKeyState(0x41);
 			SHORT dKeyState = GetAsyncKeyState(0x44);
-
-			if ((leftKeyState & 0x8000 || aKeyState & 0x8000) && game.paddle.position - game.paddle.width / 2 > 0)
-			{
-				game.paddle.position -= game.paddle.speed;
-				if (game.paddle.boost)
-					game.paddle.position -= game.paddle.speed;
-			}
-			
-			if ((rightKeyState & 0x8000 || dKeyState & 0x8000) && game.paddle.position + game.paddle.width / 2 < width)
-			{
-				game.paddle.position += game.paddle.speed;
-				if (game.paddle.boost)
-					game.paddle.position -= game.paddle.speed;
-			}
 			
 			if (game.paddle.position + game.paddle.width / 2 > width)
 				game.paddle.position = width - game.paddle.width / 2;
@@ -178,34 +164,85 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				game.paddle.position = game.paddle.width / 2;
 
 			// Draw the ball.
-			if (game.balls.size() > 0)
+			if (game.balls.size())
 			{
-				for (Ball ball : game.balls)
+				// Draw balls
+				for (Ball & ball : game.balls)
 				{
-					HPEN pen = (HPEN)SelectObject(mdc, CreatePen(PS_SOLID, 1, RGB(0, 0, 0)));
-					HBRUSH brush = (HBRUSH)SelectObject(mdc, CreateSolidBrush(RGB(0, 0, 0)));
+					// Move ball
+					ball.x += ball.speed * cos(ball.angle * M_PI / 180);
+					ball.y += ball.speed * sin(ball.angle * M_PI / 180);
+
+					// Handle bounce off walls.
+					if (ball.x > width || ball.x < 0)
+						ball.angle = 180 - ball.angle;
+					if (ball.y > height || ball.y < 0)
+						ball.angle = 360 - ball.angle;
+
+					pen = (HPEN)SelectObject(mdc, CreatePen(PS_SOLID, 1, RGB(0, 0, 0)));
+					brush = (HBRUSH)SelectObject(mdc, CreateSolidBrush(RGB(0, 0, 0)));
 
 					Ellipse(mdc, ball.x - ball.radius, ball.y - ball.radius, ball.x + ball.radius, ball.y + ball.radius);
-					
-					DeleteObject(pen);
-					DeleteObject(brush);
+				}
+
+				// Move paddle
+				if ((leftKeyState & 0x8000 || aKeyState & 0x8000) && game.paddle.position - game.paddle.width / 2 > 0)
+				{
+					game.paddle.position -= game.paddle.speed;
+					if (game.paddle.boost)
+						game.paddle.position -= game.paddle.speed;
+				}
+
+				if ((rightKeyState & 0x8000 || dKeyState & 0x8000) && game.paddle.position + game.paddle.width / 2 < width)
+				{
+					game.paddle.position += game.paddle.speed;
+					if (game.paddle.boost)
+						game.paddle.position -= game.paddle.speed;
 				}
 			}
-			else if (game.lives)
+			else
 			{
-				HPEN pen = (HPEN)SelectObject(mdc, CreatePen(PS_SOLID, 1, RGB(0, 0, 0)));
-				HBRUSH brush = (HBRUSH)SelectObject(mdc, CreateSolidBrush(RGB(0, 0, 0)));
+				if (game.lives)
+				{
+					pen = (HPEN)SelectObject(mdc, CreatePen(PS_SOLID, 1, RGB(0, 0, 0)));
+					brush = (HBRUSH)SelectObject(mdc, CreateSolidBrush(RGB(0, 0, 0)));
 
-				Ellipse(mdc, game.paddle.position - BALL_RADIUS, height - game.paddle.height - BALL_RADIUS - 20, game.paddle.position + BALL_RADIUS, height - game.paddle.height + BALL_RADIUS - 20);
-				
-				DeleteObject(pen);
-				DeleteObject(brush);
+					// Handle starting game
+					SHORT spaceKeyState = GetAsyncKeyState(VK_SPACE);
+					if (spaceKeyState & 0x8000)
+						game.balls.push_back(Ball(atan2((height - game.paddle.height - 60) - (height - game.paddle.height - 20), (game.paddle.position + game.paddle.angle) - (game.paddle.position)), game.paddle.position, height - game.paddle.height - 20));
+					else
+					{
+						Ellipse(mdc, game.paddle.position - BALL_RADIUS, height - game.paddle.height - BALL_RADIUS - 20, game.paddle.position + BALL_RADIUS, height - game.paddle.height + BALL_RADIUS - 20);
+
+						// Move angle left
+						if ((leftKeyState & 0x8000 || aKeyState & 0x8000) && game.paddle.angle > -45)
+							game.paddle.angle--;
+
+						// Move angle right
+						if ((rightKeyState & 0x8000 || dKeyState & 0x8000) && game.paddle.angle < 45)
+							game.paddle.angle++;
+
+						pen = (HPEN)SelectObject(mdc, CreatePen(PS_DOT, 1, RGB(0, 0, 0)));
+
+						// Draw angle line
+						MoveToEx(mdc, game.paddle.position, height - game.paddle.height - 20, NULL);
+						LineTo(mdc, game.paddle.position + game.paddle.angle, height - game.paddle.height - 60);
+					}
+				}
+				else
+				{
+					// game over
+				}
 			}
 			
 			//
 			BitBlt(hdc, 0, 0, width, height, mdc, 0, 0, SRCCOPY);
 
 			// Clean up
+			DeleteObject(pen);
+			DeleteObject(brush);
+
 			SelectObject(mdc, orbmp);
 			DeleteObject(bmp);
 			DeleteObject(mdc);

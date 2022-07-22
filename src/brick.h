@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <random>
+#include "math.h"
 
 #define GAME_WIDTH 600
 #define GAME_HEIGHT 400
@@ -17,6 +18,7 @@ using std::mt19937;
 using std::uniform_int_distribution;
 
 typedef unsigned short int USI;
+typedef short int SI;
 
 class Brick
 {
@@ -36,6 +38,11 @@ public:
 	USI height = PADDLE_HEIGHT;
 	USI position = GAME_WIDTH / 2;
 	
+	short int angle = 0; // Angle of ball
+	// -45\  |0 /45
+	//     \ | /
+	//       o
+
 	// Powerups used each frame
 	USI extention = 0;
 	USI lazer = 0;
@@ -48,11 +55,11 @@ class Ball
 {
 public:
 	Ball(USI, USI, USI);
-	USI angle;
+	SI angle;
 	USI speed = BALL_SPEED;
 	USI radius = BALL_RADIUS;
-	USI x;
-	USI y;
+	SI x;
+	SI y;
 };
 
 class Game
