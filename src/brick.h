@@ -72,6 +72,7 @@ public:
 	USI lives = BALLS;
 	USI score = 0;
 	USI level = 0;
+	bool active = false;
 	void initiateLevel();
 };
 
