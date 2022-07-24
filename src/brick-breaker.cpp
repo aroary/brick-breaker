@@ -219,11 +219,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 								
 								SI angle = atan2(prevY - ball.y, prevX - ball.x) * 180 / M_PI;
 								
-								if (angle > 45 && angle < 135)
-									ball.angle = 180 - ball.angle;
-								else if (angle > 135 && angle < 225)
-									ball.angle = 360 - ball.angle;
-								else if (angle > 225 && angle < 315)
+								if ((angle > 45 && angle < 135) || (angle > 225 && angle < 315))
 									ball.angle = 180 - ball.angle;
 								else
 									ball.angle = 360 - ball.angle;
