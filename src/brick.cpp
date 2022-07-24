@@ -3,7 +3,6 @@
 random_device dev;
 mt19937 rng(dev());
 uniform_int_distribution<mt19937::result_type> dropDist(0, 6);
-uniform_int_distribution<mt19937::result_type> strengthDist(1, 3);
 uniform_int_distribution<mt19937::result_type> xDist(0, 7);
 uniform_int_distribution<mt19937::result_type> yDist(0, 3);
 
@@ -44,20 +43,28 @@ void Game::initiateLevel()
 	
 	this->bricks.clear();
 
-	for (USI i = 0; i < 16; i++)
+	USI i = 0;
+	while (i < 16)
 	{
 		USI x = xDist(rng);
 		USI y = yDist(rng);
+		USI strength = 1;
+		
+		if (i < 6)
+			strength++;
+		if (i < 8)
+			strength++;
 		
 		USI j = 0;
 		for (Brick brick: game.bricks)
-			if (brick.x == x && brick.y == y)
-				i--;
-			else
+			if (!(brick.x == x && brick.y == y))
 				j++;
 		
 		if (j == i)
-			this->bricks.push_back(Brick(strengthDist(rng), x, y));
+		{
+			this->bricks.push_back(Brick(strength, x, y));
+			i++;
+		}
 	}
 
 	this->lives += 2;
