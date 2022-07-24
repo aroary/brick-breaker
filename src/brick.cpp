@@ -42,6 +42,8 @@ void Game::initiateLevel()
 {
 	this->level++;
 	
+	this->bricks.clear();
+
 	for (USI i = 0; i < 16; i++)
 	{
 		USI x = xDist(rng);
@@ -57,6 +59,8 @@ void Game::initiateLevel()
 		if (j == i)
 			this->bricks.push_back(Brick(strengthDist(rng), x, y));
 	}
+
+	this->lives += 2;
 }
 
 Game game;

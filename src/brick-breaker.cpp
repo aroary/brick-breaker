@@ -138,20 +138,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			FillRect(mdc, &cRect, CreateSolidBrush(RGB(230, 230, 230)));
 
 			// Draw the bricks.
+			USI destroyed = 0;
 			for (Brick brick: game.bricks)
 				if (brick.strength)
 				{
 					USI x = ((width - 100) / 8) * brick.x;
-					USI y = (100 / 3 ) * brick.y;
+					USI y = (100 / 3) * brick.y;
 					RECT bRect = { x + 50, y + 50, x + 50 + (width - 100) / 8, y + 50 + (100 / 3) };
-				
+
 					SelectObject(mdc, whitePen);
 					HBRUSH brickColor = (HBRUSH)SelectObject(mdc, CreateSolidBrush(RGB(180 - brick.strength * 20, 100, 100)));
-				
+
 					RoundRect(mdc, bRect.left, bRect.top, bRect.right, bRect.bottom, 10, 10);
-				
+
 					DeleteObject(brickColor);
 				}
+				else
+					destroyed++;
+
+			if (destroyed == game.bricks.size())
+			{
+				game.balls.clear();
+				game.initiateLevel();
+			}
 			
 
 			// Draw the paddle.
@@ -205,7 +214,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 							
 							if (ball.x >= x && ball.x <= x + (width - 100) / 8 && ball.y >= y && ball.y <= y + (100 / 3))
 							{
-								ball.angle = 360 - ball.angle;
+								ball.angle = 180 - ball.angle;
+								
 								brick.strength--;
 							}
 						}
