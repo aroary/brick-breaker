@@ -199,7 +199,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 					// Handle bounce off paddle.
 					if (ball.y >= height - game.paddle.height - 10 && ball.y <= height - 10 && ball.x >= game.paddle.position - game.paddle.width / 2 && ball.x <= game.paddle.position + game.paddle.width / 2)
-						ball.angle = 360 - ball.angle;
+						ball.angle = 360 - ball.angle + (ball.x - game.paddle.position);
 
 					// Handle out of bounds.
 					if (ball.y > height)
@@ -214,8 +214,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 							
 							if (ball.x >= x && ball.x <= x + (width - 100) / 8 && ball.y >= y && ball.y <= y + (100 / 3))
 							{
-								ball.angle = 180 - ball.angle;
+								USI prevX = ball.speed * cos((ball.angle + 180) * M_PI / 180);
+								USI prevY = ball.speed * sin((ball.angle + 180) * M_PI / 180);
 								
+								SI angle = atan2(prevY - ball.y, prevX - ball.x) * 180 / M_PI;
+								
+								if (angle > 45 && angle < 135)
+									ball.angle = 180 - ball.angle;
+								else if (angle > 135 && angle < 225)
+									ball.angle = 360 - ball.angle;
+								else if (angle > 225 && angle < 315)
+									ball.angle = 180 - ball.angle;
+								else
+									ball.angle = 360 - ball.angle;
+
 								brick.strength--;
 							}
 						}
