@@ -133,9 +133,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			HPEN whitePen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
 			HBRUSH blackBrush = CreateSolidBrush(RGB(0, 0, 0));
 			HBRUSH whiteBrush = CreateSolidBrush(RGB(255, 255, 255));
+			HBRUSH greyBrush = CreateSolidBrush(RGB(230, 230, 230));
+			HBRUSH blueBrush = CreateSolidBrush(RGB(100, 100, 150));
 
 			//
-			FillRect(mdc, &cRect, CreateSolidBrush(RGB(230, 230, 230)));
+			FillRect(mdc, &cRect, greyBrush);
 
 			// Draw the bricks.
 			USI destroyed = 0;
@@ -165,7 +167,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			// Draw the paddle.
 			RECT paddle = { game.paddle.position - game.paddle.width / 2, height - game.paddle.height - 10, game.paddle.position + game.paddle.width / 2, height - 10 };
-			FillRect(mdc, &paddle, CreateSolidBrush(RGB(100, 100, 150)));
+			FillRect(mdc, &paddle, blueBrush);
 
 			SHORT leftKeyState = GetAsyncKeyState(VK_LEFT);
 			SHORT rightKeyState = GetAsyncKeyState(VK_RIGHT);
@@ -301,6 +303,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DeleteObject(whitePen);
 			DeleteObject(blackBrush);
 			DeleteObject(whiteBrush);
+			DeleteObject(greyBrush);
+			DeleteObject(blueBrush);
 
 			SelectObject(mdc, orbmp);
 			DeleteObject(bmp);
