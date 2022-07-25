@@ -194,15 +194,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					ball.y += ball.speed * sin(ball.angle * M_PI / 180);
 
 					// Handle bounce off walls.
-					if (ball.x >= width || ball.x <= 0)
+					if (ball.x >= width)
+					{
 						ball.angle = 180 - ball.angle;
+						ball.x = width;
+					}
+					if (ball.x <= 0)
+					{
+						ball.angle = 180 - ball.angle;
+						ball.x = 0;
+					}
 					if (ball.y <= 0)
+					{
 						ball.angle = 360 - ball.angle;
-
+						ball.y = 0;
+					}
+					
 					// Handle bounce off paddle.
 					if (ball.y >= height - game.paddle.height - 10 && ball.y <= height - 10 && ball.x >= game.paddle.position - game.paddle.width / 2 && ball.x <= game.paddle.position + game.paddle.width / 2)
+					{
 						ball.angle = 360 - ball.angle + (ball.x - game.paddle.position);
-
+						ball.y = height - game.paddle.height - 10;
+					}
+					
 					// Handle out of bounds.
 					if (ball.y > height)
 						game.balls.erase(game.balls.begin() + i);
