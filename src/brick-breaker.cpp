@@ -133,9 +133,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			HPEN whitePen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
 			HBRUSH blackBrush = CreateSolidBrush(RGB(0, 0, 0));
 			HBRUSH whiteBrush = CreateSolidBrush(RGB(255, 255, 255));
+			HBRUSH greyBrush = CreateSolidBrush(RGB(230, 230, 230));
+			HBRUSH blueBrush = CreateSolidBrush(RGB(100, 100, 150));
 
 			//
-			FillRect(mdc, &cRect, CreateSolidBrush(RGB(230, 230, 230)));
+			FillRect(mdc, &cRect, greyBrush);
 
 			// Draw the bricks.
 			USI destroyed = 0;
@@ -165,7 +167,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			// Draw the paddle.
 			RECT paddle = { game.paddle.position - game.paddle.width / 2, height - game.paddle.height - 10, game.paddle.position + game.paddle.width / 2, height - 10 };
-			FillRect(mdc, &paddle, CreateSolidBrush(RGB(100, 100, 150)));
+			FillRect(mdc, &paddle, blueBrush);
 
 			SHORT leftKeyState = GetAsyncKeyState(VK_LEFT);
 			SHORT rightKeyState = GetAsyncKeyState(VK_RIGHT);
@@ -192,15 +194,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					ball.y += ball.speed * sin(ball.angle * M_PI / 180);
 
 					// Handle bounce off walls.
-					if (ball.x >= width || ball.x <= 0)
+					if (ball.x >= width)
+					{
 						ball.angle = 180 - ball.angle;
+						ball.x = width;
+					}
+					if (ball.x <= 0)
+					{
+						ball.angle = 180 - ball.angle;
+						ball.x = 0;
+					}
 					if (ball.y <= 0)
+					{
 						ball.angle = 360 - ball.angle;
-
+						ball.y = 0;
+					}
+					
 					// Handle bounce off paddle.
 					if (ball.y >= height - game.paddle.height - 10 && ball.y <= height - 10 && ball.x >= game.paddle.position - game.paddle.width / 2 && ball.x <= game.paddle.position + game.paddle.width / 2)
-						ball.angle = 360 - ball.angle;
-
+					{
+						ball.angle = 360 - ball.angle + (ball.x - game.paddle.position);
+						ball.y = height - game.paddle.height - 10;
+					}
+					
 					// Handle out of bounds.
 					if (ball.y > height)
 						game.balls.erase(game.balls.begin() + i);
@@ -214,8 +230,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 							
 							if (ball.x >= x && ball.x <= x + (width - 100) / 8 && ball.y >= y && ball.y <= y + (100 / 3))
 							{
-								ball.angle = 180 - ball.angle;
+								USI prevX = ball.speed * cos((ball.angle + 180) * M_PI / 180);
+								USI prevY = ball.speed * sin((ball.angle + 180) * M_PI / 180);
 								
+								SI angle = atan2(prevY - ball.y, prevX - ball.x) * 180 / M_PI;
+								
+								if ((angle > 45 && angle < 135) || (angle > 225 && angle < 315))
+									ball.angle = 180 - ball.angle;
+								else
+									ball.angle = 360 - ball.angle;
+
 								brick.strength--;
 							}
 						}
@@ -293,6 +317,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DeleteObject(whitePen);
 			DeleteObject(blackBrush);
 			DeleteObject(whiteBrush);
+			DeleteObject(greyBrush);
+			DeleteObject(blueBrush);
 
 			SelectObject(mdc, orbmp);
 			DeleteObject(bmp);
