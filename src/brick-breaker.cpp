@@ -232,9 +232,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 							if (ball.x >= x && ball.x <= x + (width - 100) / 8 && ball.y >= y && ball.y <= y + (100 / 3))
 							{								
 								RECT brickRect = { x, y, x + (width - 100) / 8, y + (100 / 3) };
-								
-								USI px = ball.speed * cos((ball.angle + 180) * M_PI / 180);
-								USI py = ball.speed * sin((ball.angle + 180) * M_PI / 180);
 
 								if (ball.x > brickRect.left && ball.x < brickRect.right && ball.y < brickRect.top + ball.speed)
 									ball.angle = 360 - ball.angle;
