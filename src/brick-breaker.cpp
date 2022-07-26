@@ -129,12 +129,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			HBITMAP bmp = CreateCompatibleBitmap(hdc, width, height);
 			HBITMAP orbmp = (HBITMAP)SelectObject(mdc, bmp);
 
+			HPEN noPen = CreatePen(PS_NULL, 0, RGB(0, 0, 0));
 			HPEN blackPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
 			HPEN whitePen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
 			HBRUSH blackBrush = CreateSolidBrush(RGB(0, 0, 0));
 			HBRUSH whiteBrush = CreateSolidBrush(RGB(255, 255, 255));
 			HBRUSH greyBrush = CreateSolidBrush(RGB(230, 230, 230));
 			HBRUSH blueBrush = CreateSolidBrush(RGB(100, 100, 150));
+			HBRUSH greenBrush = CreateSolidBrush(RGB(50, 150, 100));
 
 			//
 			FillRect(mdc, &cRect, greyBrush);
@@ -243,10 +245,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 									ball.angle = 180 - ball.angle;
 
 								brick.strength--;
+
+								if (!brick.strength)
+									game.drops.push_back(Drop(x + ((width - 100) / 8) / 2, y + ((100 / 3) / 2)));
 							}
 						}
 
 					Ellipse(mdc, ball.x - ball.radius, ball.y - ball.radius, ball.x + ball.radius, ball.y + ball.radius);
+				}
+
+				USI dropIndex = 0;
+				for (Drop & drop : game.drops)
+				{
+					drop.y += 5;
+					
+					SelectObject(mdc, noPen);
+					SelectObject(mdc, greenBrush);
+
+					Ellipse(mdc, drop.x - 10, drop.y - 10, drop.x + 10, drop.y + 10);
+					
+					if (drop.y > height)
+						game.drops.erase(game.drops.begin() + dropIndex);
 				}
 
 				// Move paddle
@@ -268,8 +287,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				if (game.active)
 				{
-					game.lives--;
-					game.active = false;
+					game.lives--; // Lose a life.
+					game.drops.clear(); // Clear drops.
+
+					// Clear boosts
+					game.paddle.boost = 0;
+					game.paddle.extention = 0;
+					game.paddle.lazer = 0;
+					game.paddle.multiplier = 0;
+					
+					game.active = false; // Wait for ball.
 				}
 				
 				if (game.lives)
@@ -321,6 +348,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DeleteObject(whiteBrush);
 			DeleteObject(greyBrush);
 			DeleteObject(blueBrush);
+			DeleteObject(greenBrush);
 
 			SelectObject(mdc, orbmp);
 			DeleteObject(bmp);
