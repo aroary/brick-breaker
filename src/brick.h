@@ -3,6 +3,9 @@
 #include <random>
 #include "math.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 #define GAME_WIDTH 600
 #define GAME_HEIGHT 400
 #define BALLS 3
