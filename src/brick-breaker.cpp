@@ -264,6 +264,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 					Ellipse(mdc, drop.x - 10, drop.y - 10, drop.x + 10, drop.y + 10);
 					
+					if (drop.x >= game.paddle.position - game.paddle.width / 2 && drop.x <= game.paddle.position + game.paddle.width / 2 && drop.y >= height - game.paddle.height - 10 && drop.y <= height - 10)
+					{
+						if (drop.type == 1)
+							game.paddle.extention += 1000;
+						if (drop.type == 2)
+							game.paddle.boost += 1000;
+						if (drop.type == 3)
+							game.paddle.lazer += 1000;
+						if (drop.type == 4)
+							game.paddle.multiplier += 1000;
+
+						game.drops.erase(game.drops.begin() + dropIndex);
+					}
+					
 					if (drop.y > height)
 						game.drops.erase(game.drops.begin() + dropIndex);
 				}
@@ -280,7 +294,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					game.paddle.position += game.paddle.speed;
 					if (game.paddle.boost)
-						game.paddle.position -= game.paddle.speed;
+						game.paddle.position += game.paddle.speed;
 				}
 			}
 			else
