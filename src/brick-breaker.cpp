@@ -215,6 +215,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					{
 						ball.angle = 360 - ball.angle + (ball.x - game.paddle.position);
 						ball.y = height - game.paddle.height - 10;
+						ball.speed++;
 					}
 					
 					// Handle out of bounds.
@@ -229,16 +230,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 							USI y = (100 / 3) * brick.y + 50;
 							
 							if (ball.x >= x && ball.x <= x + (width - 100) / 8 && ball.y >= y && ball.y <= y + (100 / 3))
-							{
-								USI prevX = ball.speed * cos((ball.angle + 180) * M_PI / 180);
-								USI prevY = ball.speed * sin((ball.angle + 180) * M_PI / 180);
+							{								
+								RECT brickRect = { x, y, x + (width - 100) / 8, y + (100 / 3) };
 								
-								SI angle = atan2(prevY - ball.y, prevX - ball.x) * 180 / M_PI;
-								
-								if ((angle > 45 && angle < 135) || (angle > 225 && angle < 315))
-									ball.angle = 180 - ball.angle;
-								else
+								USI px = ball.speed * cos((ball.angle + 180) * M_PI / 180);
+								USI py = ball.speed * sin((ball.angle + 180) * M_PI / 180);
+
+								if (ball.x > brickRect.left && ball.x < brickRect.right && ball.y < brickRect.top + ball.speed)
 									ball.angle = 360 - ball.angle;
+								if (ball.x > brickRect.left && ball.x < brickRect.right && ball.y > brickRect.bottom - ball.speed)
+									ball.angle = 360 - ball.angle;
+								if (ball.y > brickRect.top && ball.y < brickRect.bottom && ball.x < brickRect.left + ball.speed)
+									ball.angle = 180 - ball.angle;
+								if (ball.y > brickRect.top && ball.y < brickRect.bottom && ball.x > brickRect.right - ball.speed)
+									ball.angle = 180 - ball.angle;
 
 								brick.strength--;
 							}
