@@ -169,6 +169,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			// Draw the paddle.
 			RECT paddle = { game.paddle.position - game.paddle.width / 2, height - game.paddle.height - 10, game.paddle.position + game.paddle.width / 2, height - 10 };
+			
+			if (game.paddle.extention)
+			{
+				paddle.left -= game.paddle.width / 2;
+				paddle.right += game.paddle.width / 2;
+			}
+
 			FillRect(mdc, &paddle, blueBrush);
 
 			SHORT leftKeyState = GetAsyncKeyState(VK_LEFT);
@@ -213,7 +220,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					}
 					
 					// Handle bounce off paddle.
-					if (ball.y >= height - game.paddle.height - 10 && ball.y <= height - 10 && ball.x >= game.paddle.position - game.paddle.width / 2 && ball.x <= game.paddle.position + game.paddle.width / 2)
+					if (ball.y >= paddle.top && ball.y <= paddle.bottom && ball.x >= paddle.left && ball.x <= paddle.right)
 					{
 						ball.angle = 360 - ball.angle + (ball.x - game.paddle.position);
 						ball.y = height - game.paddle.height - 10;
@@ -267,13 +274,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					if (drop.x >= game.paddle.position - game.paddle.width / 2 && drop.x <= game.paddle.position + game.paddle.width / 2 && drop.y >= height - game.paddle.height - 10 && drop.y <= height - 10)
 					{
 						if (drop.type == 1)
-							game.paddle.extention += 1000;
+							game.paddle.extention += 500;
 						if (drop.type == 2)
-							game.paddle.boost += 1000;
+							game.paddle.boost += 500;
 						if (drop.type == 3)
-							game.paddle.lazer += 1000;
+							game.paddle.lazer += 500;
 						if (drop.type == 4)
-							game.paddle.multiplier += 1000;
+							game.paddle.multiplier += 500;
 
 						game.drops.erase(game.drops.begin() + dropIndex);
 					}
@@ -281,6 +288,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					if (drop.y > height)
 						game.drops.erase(game.drops.begin() + dropIndex);
 				}
+
+				game.paddle.powerUps();
 
 				// Move paddle
 				if ((leftKeyState & 0x8000 || aKeyState & 0x8000) && game.paddle.position - game.paddle.width / 2 > 0)
