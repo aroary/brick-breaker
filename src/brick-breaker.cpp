@@ -143,7 +143,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			//
 			FillRect(mdc, &cRect, greyBrush);
 
-			// Score
+			SetBkMode(mdc, TRANSPARENT);
 			
 			wchar_t scoreText[18] = L"Score: ";
 			const wchar_t *score[10] = { to_wstring(game.score).c_str()};
@@ -153,6 +153,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			const wchar_t* life[10] = { to_wstring(game.lives).c_str() };
 			DrawText(mdc, std::wcscat(lifeText, *life), -1, &cRect, DT_SINGLELINE | DT_TOP | DT_RIGHT);
 
+			wchar_t levelText[18] = L"Level: ";
+			const wchar_t* level[10] = { to_wstring(game.level).c_str() };
+			DrawText(mdc, std::wcscat(levelText, *level), -1, &cRect, DT_SINGLELINE | DT_TOP | DT_CENTER | DT_NOCLIP);
 			
 
 			// (LPCWSTR)
