@@ -143,7 +143,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			//
 			FillRect(mdc, &cRect, greyBrush);
 
-			// Score
+			SetBkMode(mdc, TRANSPARENT);
 			
 			wchar_t scoreText[18] = L"Score: ";
 			const wchar_t *score[10] = { to_wstring(game.score).c_str()};
@@ -153,10 +153,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			const wchar_t* life[10] = { to_wstring(game.lives).c_str() };
 			DrawText(mdc, std::wcscat(lifeText, *life), -1, &cRect, DT_SINGLELINE | DT_TOP | DT_RIGHT);
 
+			wchar_t levelText[18] = L"Level: ";
+			const wchar_t* level[10] = { to_wstring(game.level).c_str() };
+			DrawText(mdc, std::wcscat(levelText, *level), -1, &cRect, DT_SINGLELINE | DT_TOP | DT_CENTER | DT_NOCLIP);
 			
-
-			// (LPCWSTR)
-
 			// Draw the bricks.
 			USI destroyed = 0;
 			for (Brick brick: game.bricks)
@@ -340,7 +340,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					game.lives--; // Lose a life.
 					game.drops.clear(); // Clear drops.
 
-					// Clear boosts
+					// Clear powerups
 					game.paddle.boost = 0;
 					game.paddle.extention = 0;
 					game.paddle.lazer = 0;
@@ -385,6 +385,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				else
 				{
 					TextOut(mdc, width / 2, height / 2, L"Game Over", 9);
+
+					// Handle starting game
+					SHORT enterKeyState = GetAsyncKeyState(VK_RETURN);
+					if (enterKeyState & 0x8000)
+					{
+						game.level = 0;
+						game.lives = BALLS;
+						game.score = 0;
+						game.initiateLevel();
+					}
 				}
 			}
 			
