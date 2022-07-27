@@ -157,9 +157,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			const wchar_t* level[10] = { to_wstring(game.level).c_str() };
 			DrawText(mdc, std::wcscat(levelText, *level), -1, &cRect, DT_SINGLELINE | DT_TOP | DT_CENTER | DT_NOCLIP);
 			
-
-			// (LPCWSTR)
-
 			// Draw the bricks.
 			USI destroyed = 0;
 			for (Brick brick: game.bricks)
@@ -388,6 +385,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				else
 				{
 					TextOut(mdc, width / 2, height / 2, L"Game Over", 9);
+
+					// Handle starting game
+					SHORT spaceKeyState = GetAsyncKeyState(VK_SPACE);
+					SHORT enterKeyState = GetAsyncKeyState(VK_RETURN);
+					if (spaceKeyState & 0x8000 || enterKeyState & 0x8000)
+						;// game.reset();
 				}
 			}
 			
