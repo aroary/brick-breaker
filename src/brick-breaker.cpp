@@ -36,13 +36,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	// Main message loop:
 	while (GetMessage(&msg, nullptr, 0, 0))
-	{
 		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-	}
 
 	return (int) msg.wParam;
 }
@@ -422,14 +420,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_KEYDOWN: // Handle keys pressed.
 		switch (wParam)
 		{
-		case VK_TAB:
-			break;
-		case VK_SPACE:
-			break;
-		case VK_LEFT:
-			break;
-		case VK_RIGHT:
-			break;
 		default:
 			break;
 		}
