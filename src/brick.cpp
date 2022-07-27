@@ -41,6 +41,7 @@ Ball::Ball(USI angle, USI x, USI y)
 Game::Game()
 {
 	this->initiateLevel();
+	this->lives = 0;
 }
 
 void Game::initiateLevel()
