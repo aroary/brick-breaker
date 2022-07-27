@@ -239,7 +239,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 							USI y = (100 / 3) * brick.y + 50;
 							
 							if (ball.x >= x && ball.x <= x + (width - 100) / 8 && ball.y >= y && ball.y <= y + (100 / 3))
-							{								
+							{
 								RECT brickRect = { x, y, x + (width - 100) / 8, y + (100 / 3) };
 
 								if (ball.x > brickRect.left && ball.x < brickRect.right && ball.y < brickRect.top + ball.speed)
@@ -254,7 +254,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 								brick.strength--;
 
 								if (!brick.strength)
-									game.drops.push_back(Drop(x + ((width - 100) / 8) / 2, y + ((100 / 3) / 2)));
+								{
+									Drop drop(x + ((width - 100) / 8) / 2, y + ((100 / 3) / 2));
+									if (drop.type >= 1 && drop.type <= 4)
+										game.drops.push_back(drop);
+								}
 							}
 						}
 
