@@ -86,7 +86,6 @@ public:
 	USI level = 0;
 	bool active = false;
 	void initiateLevel();
-	void reset();
 };
 
 extern Game game;

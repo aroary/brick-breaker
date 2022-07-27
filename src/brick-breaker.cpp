@@ -340,7 +340,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					game.lives--; // Lose a life.
 					game.drops.clear(); // Clear drops.
 
-					// Clear boosts
+					// Clear powerups
 					game.paddle.boost = 0;
 					game.paddle.extention = 0;
 					game.paddle.lazer = 0;
@@ -387,10 +387,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					TextOut(mdc, width / 2, height / 2, L"Game Over", 9);
 
 					// Handle starting game
-					SHORT spaceKeyState = GetAsyncKeyState(VK_SPACE);
 					SHORT enterKeyState = GetAsyncKeyState(VK_RETURN);
-					if (spaceKeyState & 0x8000 || enterKeyState & 0x8000)
-						;// game.reset();
+					if (enterKeyState & 0x8000)
+					{
+						game.level = 0;
+						game.lives = BALLS;
+						game.score = 0;
+						game.initiateLevel();
+					}
 				}
 			}
 			

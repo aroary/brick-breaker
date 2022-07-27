@@ -76,9 +76,4 @@ void Game::initiateLevel()
 	this->lives += 2;
 }
 
-void Game::reset()
-{
-	*this = Game();
-}
-
 Game game;
