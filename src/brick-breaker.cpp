@@ -129,12 +129,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			HBITMAP bmp = CreateCompatibleBitmap(hdc, width, height);
 			HBITMAP orbmp = (HBITMAP)SelectObject(mdc, bmp);
 
+			HPEN noPen = CreatePen(PS_NULL, 0, RGB(0, 0, 0));
 			HPEN blackPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
 			HPEN whitePen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
 			HBRUSH blackBrush = CreateSolidBrush(RGB(0, 0, 0));
 			HBRUSH whiteBrush = CreateSolidBrush(RGB(255, 255, 255));
 			HBRUSH greyBrush = CreateSolidBrush(RGB(230, 230, 230));
 			HBRUSH blueBrush = CreateSolidBrush(RGB(100, 100, 150));
+			HBRUSH greenBrush = CreateSolidBrush(RGB(50, 150, 100));
 
 			//
 			FillRect(mdc, &cRect, greyBrush);
@@ -167,6 +169,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			// Draw the paddle.
 			RECT paddle = { game.paddle.position - game.paddle.width / 2, height - game.paddle.height - 10, game.paddle.position + game.paddle.width / 2, height - 10 };
+			
+			if (game.paddle.extention)
+			{
+				paddle.left -= game.paddle.width / 2;
+				paddle.right += game.paddle.width / 2;
+			}
+
 			FillRect(mdc, &paddle, blueBrush);
 
 			SHORT leftKeyState = GetAsyncKeyState(VK_LEFT);
@@ -211,7 +220,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					}
 					
 					// Handle bounce off paddle.
-					if (ball.y >= height - game.paddle.height - 10 && ball.y <= height - 10 && ball.x >= game.paddle.position - game.paddle.width / 2 && ball.x <= game.paddle.position + game.paddle.width / 2)
+					if (ball.y >= paddle.top && ball.y <= paddle.bottom && ball.x >= paddle.left && ball.x <= paddle.right)
 					{
 						ball.angle = 360 - ball.angle + (ball.x - game.paddle.position);
 						ball.y = height - game.paddle.height - 10;
@@ -232,9 +241,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 							if (ball.x >= x && ball.x <= x + (width - 100) / 8 && ball.y >= y && ball.y <= y + (100 / 3))
 							{								
 								RECT brickRect = { x, y, x + (width - 100) / 8, y + (100 / 3) };
-								
-								USI px = ball.speed * cos((ball.angle + 180) * M_PI / 180);
-								USI py = ball.speed * sin((ball.angle + 180) * M_PI / 180);
 
 								if (ball.x > brickRect.left && ball.x < brickRect.right && ball.y < brickRect.top + ball.speed)
 									ball.angle = 360 - ball.angle;
@@ -246,11 +252,44 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 									ball.angle = 180 - ball.angle;
 
 								brick.strength--;
+
+								if (!brick.strength)
+									game.drops.push_back(Drop(x + ((width - 100) / 8) / 2, y + ((100 / 3) / 2)));
 							}
 						}
 
 					Ellipse(mdc, ball.x - ball.radius, ball.y - ball.radius, ball.x + ball.radius, ball.y + ball.radius);
 				}
+
+				USI dropIndex = 0;
+				for (Drop & drop : game.drops)
+				{
+					drop.y += 5;
+					
+					SelectObject(mdc, noPen);
+					SelectObject(mdc, greenBrush);
+
+					Ellipse(mdc, drop.x - 10, drop.y - 10, drop.x + 10, drop.y + 10);
+					
+					if (drop.x >= game.paddle.position - game.paddle.width / 2 && drop.x <= game.paddle.position + game.paddle.width / 2 && drop.y >= height - game.paddle.height - 10 && drop.y <= height - 10)
+					{
+						if (drop.type == 1)
+							game.paddle.extention += 500;
+						if (drop.type == 2)
+							game.paddle.boost += 500;
+						if (drop.type == 3)
+							game.paddle.lazer += 500;
+						if (drop.type == 4)
+							game.paddle.multiplier += 500;
+
+						game.drops.erase(game.drops.begin() + dropIndex);
+					}
+					
+					if (drop.y > height)
+						game.drops.erase(game.drops.begin() + dropIndex);
+				}
+
+				game.paddle.powerUps();
 
 				// Move paddle
 				if ((leftKeyState & 0x8000 || aKeyState & 0x8000) && game.paddle.position - game.paddle.width / 2 > 0)
@@ -264,15 +303,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					game.paddle.position += game.paddle.speed;
 					if (game.paddle.boost)
-						game.paddle.position -= game.paddle.speed;
+						game.paddle.position += game.paddle.speed;
 				}
 			}
 			else
 			{
 				if (game.active)
 				{
-					game.lives--;
-					game.active = false;
+					game.lives--; // Lose a life.
+					game.drops.clear(); // Clear drops.
+
+					// Clear boosts
+					game.paddle.boost = 0;
+					game.paddle.extention = 0;
+					game.paddle.lazer = 0;
+					game.paddle.multiplier = 0;
+					
+					game.active = false; // Wait for ball.
 				}
 				
 				if (game.lives)
@@ -324,6 +371,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DeleteObject(whiteBrush);
 			DeleteObject(greyBrush);
 			DeleteObject(blueBrush);
+			DeleteObject(greenBrush);
 
 			SelectObject(mdc, orbmp);
 			DeleteObject(bmp);

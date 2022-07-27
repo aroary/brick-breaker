@@ -28,7 +28,6 @@ class Brick
 public:
 	Brick(USI, USI, USI);
 	USI strength; // 0 indicates brick is destroyed
-	USI drop; // The powerup that drops when brick is destroyed
 	USI x;
 	USI y;
 };
@@ -54,6 +53,15 @@ public:
 	void powerUps();
 };
 
+class Drop
+{
+public:
+	Drop(USI, USI);
+	USI x;
+	USI y;
+	USI type;
+};
+
 class Ball
 {
 public:
@@ -71,6 +79,7 @@ public:
 	Game();
 	vector<Brick> bricks;
 	vector<Ball> balls;
+	vector<Drop> drops;
 	Paddle paddle;
 	USI lives = BALLS;
 	USI score = 0;

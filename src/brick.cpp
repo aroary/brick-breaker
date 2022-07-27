@@ -2,14 +2,13 @@
 
 random_device dev;
 mt19937 rng(dev());
-uniform_int_distribution<mt19937::result_type> dropDist(0, 6);
+uniform_int_distribution<mt19937::result_type> dropDist(0, 5);
 uniform_int_distribution<mt19937::result_type> xDist(0, 7);
 uniform_int_distribution<mt19937::result_type> yDist(0, 3);
 
 Brick::Brick(USI strength, USI x, USI y)
 {
 	this->strength = strength;
-	this->drop = dropDist(rng);
 	this->x = x;
 	this->y = y;
 }
@@ -23,6 +22,13 @@ void Paddle::powerUps()
 		this->lazer--;
 	if (this->boost)
 		this->boost--;
+}
+
+Drop::Drop(USI x, USI y)
+{
+	this->type = dropDist(rng);
+	this->x = x;
+	this->y = y;
 }
 
 Ball::Ball(USI angle, USI x, USI y)
