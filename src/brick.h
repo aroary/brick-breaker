@@ -81,7 +81,7 @@ public:
 	vector<Ball> balls;
 	vector<Drop> drops;
 	Paddle paddle;
-	USI lives = BALLS;
+	USI lives = 0;
 	USI score = 0;
 	USI level = 0;
 	bool active = false;

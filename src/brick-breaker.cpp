@@ -384,7 +384,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 				else
 				{
-					TextOut(mdc, width / 2, height / 2, L"Game Over", 9);
+					DrawText(mdc, L"Press enter to start", -1, &cRect, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 
 					// Handle starting game
 					SHORT enterKeyState = GetAsyncKeyState(VK_RETURN);
