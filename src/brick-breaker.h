@@ -2,5 +2,6 @@
 
 #include "resource.h"
 #include "brick.h"
+#include <string>
 
-using std::remove_if;
+using std::to_wstring;

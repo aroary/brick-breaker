@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS // Needed for displaying text
+
 #include "framework.h"
 #include "brick-breaker.h"
 
@@ -141,6 +143,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			//
 			FillRect(mdc, &cRect, greyBrush);
 
+			// Score
+			
+			wchar_t scoreText[18] = L"Score: ";
+			const wchar_t *score[10] = { to_wstring(game.score).c_str()};
+			DrawText(mdc, std::wcscat(scoreText, *score), -1, &cRect, DT_SINGLELINE | DT_TOP | DT_LEFT);
+			
+			wchar_t lifeText[18] = L"Lives: ";
+			const wchar_t* life[10] = { to_wstring(game.lives).c_str() };
+			DrawText(mdc, std::wcscat(lifeText, *life), -1, &cRect, DT_SINGLELINE | DT_TOP | DT_RIGHT);
+
+			
+
+			// (LPCWSTR)
+
 			// Draw the bricks.
 			USI destroyed = 0;
 			for (Brick brick: game.bricks)
@@ -224,6 +240,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					{
 						ball.angle = 360 - ball.angle + (ball.x - game.paddle.position);
 						ball.y = height - game.paddle.height - 10;
+						
+						game.score += game.paddle.multiplier ? ball.speed * 2 : ball.speed;
+
 						ball.speed++;
 					}
 					
@@ -258,7 +277,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 									Drop drop(x + ((width - 100) / 8) / 2, y + ((100 / 3) / 2));
 									if (drop.type >= 1 && drop.type <= 4)
 										game.drops.push_back(drop);
+								
+									game.score += game.paddle.multiplier ? 20 : 10;
 								}
+
+								game.score += game.paddle.multiplier ? 10 : 5;
 							}
 						}
 
