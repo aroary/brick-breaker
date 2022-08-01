@@ -160,6 +160,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DrawText(mdc, std::wcscat(levelText, *level), -1, &cRect, DT_SINGLELINE | DT_TOP | DT_CENTER | DT_NOCLIP);
 			
 			// Draw the bricks.
+			SelectObject(mdc, noPen);
+			
 			USI destroyed = 0;
 			for (Brick brick: game.bricks)
 				if (brick.strength)
@@ -167,17 +169,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					USI x = ((width - 100) / 8) * brick.x;
 					USI y = (100 / 3) * brick.y;
 					RECT bRect = { x + 50, y + 50, x + 50 + (width - 100) / 8, y + 50 + (100 / 3) };
-
-					SelectObject(mdc, whitePen);
+					
 					HBRUSH brickColor = (HBRUSH)SelectObject(mdc, CreateSolidBrush(RGB(180 - brick.strength * 20, 100, 100)));
-
+					
 					RoundRect(mdc, bRect.left, bRect.top, bRect.right, bRect.bottom, 10, 10);
-
+					
 					DeleteObject(brickColor);
 				}
 				else
 					destroyed++;
-
+			
 			if (destroyed == game.bricks.size())
 			{
 				game.balls.clear();
