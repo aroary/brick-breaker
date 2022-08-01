@@ -88,6 +88,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	//
+	static HPEN noPen = NULL, blackPen = NULL, whitePen = NULL;
+	static HBRUSH blackBrush = NULL, whiteBrush = NULL, greyBrush = NULL, blueBrush = NULL, greenBrush = NULL;
+	
 	switch (message)
 	{
 	case WM_COMMAND:
@@ -110,6 +114,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 		// Window repaint rate
 		SetTimer(hWnd, 1, 25, NULL);
+
+		static HPEN noPen = CreatePen(PS_NULL, 0, RGB(0, 0, 0));
+		static HPEN blackPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
+		static HPEN whitePen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
+		static HBRUSH blackBrush = CreateSolidBrush(RGB(0, 0, 0));
+		static HBRUSH whiteBrush = CreateSolidBrush(RGB(255, 255, 255));
+		static HBRUSH greyBrush = CreateSolidBrush(RGB(230, 230, 230));
+		static HBRUSH blueBrush = CreateSolidBrush(RGB(100, 100, 150));
+		static HBRUSH greenBrush = CreateSolidBrush(RGB(50, 150, 100));
 		break;
 	case WM_TIMER:
 		// Handle the timer loop.
@@ -128,15 +141,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			HBITMAP bmp = CreateCompatibleBitmap(hdc, width, height);
 			HBITMAP orbmp = (HBITMAP)SelectObject(mdc, bmp);
-
-			HPEN noPen = CreatePen(PS_NULL, 0, RGB(0, 0, 0));
-			HPEN blackPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
-			HPEN whitePen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
-			HBRUSH blackBrush = CreateSolidBrush(RGB(0, 0, 0));
-			HBRUSH whiteBrush = CreateSolidBrush(RGB(255, 255, 255));
-			HBRUSH greyBrush = CreateSolidBrush(RGB(230, 230, 230));
-			HBRUSH blueBrush = CreateSolidBrush(RGB(100, 100, 150));
-			HBRUSH greenBrush = CreateSolidBrush(RGB(50, 150, 100));
 
 			//
 			FillRect(mdc, &cRect, greyBrush);
@@ -400,14 +404,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			BitBlt(hdc, 0, 0, width, height, mdc, 0, 0, SRCCOPY);
 
 			// Clean up
-			DeleteObject(blackPen);
-			DeleteObject(whitePen);
-			DeleteObject(blackBrush);
-			DeleteObject(whiteBrush);
-			DeleteObject(greyBrush);
-			DeleteObject(blueBrush);
-			DeleteObject(greenBrush);
-
 			SelectObject(mdc, orbmp);
 			DeleteObject(bmp);
 			DeleteObject(mdc);
@@ -425,6 +421,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_DESTROY:
+		DeleteObject(blackPen);
+		DeleteObject(whitePen);
+		DeleteObject(blackBrush);
+		DeleteObject(whiteBrush);
+		DeleteObject(greyBrush);
+		DeleteObject(blueBrush);
+		DeleteObject(greenBrush);
+		
 		PostQuitMessage(0);
 		break;
 	default:
